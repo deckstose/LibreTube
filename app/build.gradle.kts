@@ -1,3 +1,4 @@
+import dev.detekt.gradle.Detekt
 import java.util.Properties
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
@@ -8,6 +9,10 @@ plugins {
     alias(libs.plugins.androidx.navigation.safeargs)
     alias(libs.plugins.baselineprofile)
     alias(libs.plugins.ksp)
+
+    // Jetpack Compose
+    alias(libs.plugins.detekt)
+    alias(libs.plugins.kotlin.compose)
 }
 
 /*
@@ -102,6 +107,7 @@ android {
 
     buildFeatures {
         buildConfig = true
+        compose = true
         resValues = true
     }
 
@@ -182,4 +188,28 @@ dependencies {
 
     /* Testing */
     testImplementation(libs.junit)
+
+    /* Jetpack Compose */
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.compose.material.icons)
+    implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.compose.ui)
+    implementation(libs.androidx.compose.ui.graphics)
+    implementation(libs.androidx.compose.ui.tooling.preview)
+    debugImplementation(libs.androidx.compose.ui.tooling)
+    detektPlugins(libs.detekt.rules.compose)
+    detektPlugins(libs.detekt.rules.ktlint)
+}
+
+detekt {
+    toolVersion = libs.versions.detekt.get()
+    autoCorrect = true
+    parallel = true
+}
+
+tasks.withType<Detekt>().configureEach {
+    reports {
+        sarif.required = true
+    }
 }
